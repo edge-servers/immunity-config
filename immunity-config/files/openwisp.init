@@ -7,9 +7,9 @@
 	START=99
 	USE_PROCD=1
 }
-PROG="/usr/sbin/openwisp_config"
-PROG_NAME="OpenWISP config agent"
-CONTROL_FILE=/tmp/openwisp/applying_conf
+PROG="/usr/sbin/immunity_config"
+PROG_NAME="Immunity config agent"
+CONTROL_FILE=/tmp/immunity/applying_conf
 
 add_option() {
 	local cfg="$1"
@@ -55,7 +55,7 @@ parse_config() {
 }
 
 start_service() {
-	config_load openwisp
+	config_load immunity
 	respawn_threshold=$(config_get http respawn_threshold)
 	respawn_timeout=$(config_get http respawn_timeout)
 	respawn_retry=$(config_get http respawn_retry)
@@ -75,19 +75,19 @@ start_service() {
 	config_foreach parse_config controller
 	procd_set_param respawn "${respawn_threshold:-3600}" "${respawn_timeout:-5}" "${respawn_retry:-5}"
 	procd_close_instance
-	logger -s "$PROG_NAME started" -t openwisp -p daemon.info
+	logger -s "$PROG_NAME started" -t immunity -p daemon.info
 }
 
 service_triggers() {
-	procd_add_reload_trigger openwisp
+	procd_add_reload_trigger immunity
 }
 
 stop_service() {
-	logger -s "$PROG_NAME stopping" -t openwisp -p daemon.info
+	logger -s "$PROG_NAME stopping" -t immunity -p daemon.info
 }
 
 reload_service() {
-	logger -s "$PROG_NAME received reload trigger" -t openwisp -p daemon.info
+	logger -s "$PROG_NAME received reload trigger" -t immunity -p daemon.info
 	# avoid reloading while configuration is being applied
 	# will wait for a maximum of 30 seconds
 	for _ in $(seq 1 30); do

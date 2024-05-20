@@ -2,7 +2,7 @@
 
 -- returns a random number within the specified range
 -- usage:
---   * openwisp-get-random-number <minimum_value> <maximum_value>
+--   * immunity-get-random-number <minimum_value> <maximum_value>
 local os = require('os')
 local math = require('math')
 local test

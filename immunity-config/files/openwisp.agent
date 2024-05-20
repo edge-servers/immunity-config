@@ -139,21 +139,21 @@ while [ -n "$1" ]; do
 done
 
 if [ "$VERSION" -eq "1" ]; then
-	VERSION=$(cat /usr/lib/openwisp-config/VERSION)
-	echo "openwisp-config $VERSION"
+	VERSION=$(cat /usr/lib/immunity-config/VERSION)
+	echo "immunity-config $VERSION"
 	exit 0
 fi
 
 if [ -z "$URL" ]; then
 	logger -s "missing required --url option" \
-		-t openwisp \
+		-t immunity \
 		-p daemon.err
 	exit 2
 fi
 
 if { [ -z "$UUID" ] || [ -z "$KEY" ]; } && [ -z "$SHARED_SECRET" ]; then
 	logger -s "you must either specify --uuid and --key, or --shared-secret" \
-		-t openwisp \
+		-t immunity \
 		-p daemon.err
 	exit 3
 fi
@@ -174,15 +174,15 @@ MAC_INTERFACE=${MAC_INTERFACE:-eth0}
 # LEDE was a popular fork of OpenWRT used in 2017
 # it's kept here for backward compatibility
 DEFAULT_HOSTNAME=${DEFAULT_HOSTNAME:-"LEDE"}
-PRE_RELOAD_HOOK=${PRE_RELOAD_HOOK:-/etc/openwisp/pre-reload-hook}
-POST_RELOAD_HOOK=${POST_RELOAD_HOOK:-/etc/openwisp/post-reload-hook}
+PRE_RELOAD_HOOK=${PRE_RELOAD_HOOK:-/etc/immunity/pre-reload-hook}
+POST_RELOAD_HOOK=${POST_RELOAD_HOOK:-/etc/immunity/post-reload-hook}
 POST_RELOAD_DELAY=${POST_RELOAD_DELAY:-5}
-POST_REGISTRATION_HOOK=${POST_REGISTRATION_HOOK:-/etc/openwisp/post-registration-hook}
-WORKING_DIR="/tmp/openwisp"
+POST_REGISTRATION_HOOK=${POST_REGISTRATION_HOOK:-/etc/immunity/post-registration-hook}
+WORKING_DIR="/tmp/immunity"
 BASEURL="$URL/controller"
 CONFIGURATION_ARCHIVE="$WORKING_DIR/configuration.tar.gz"
 CONFIGURATION_CHECKSUM="$WORKING_DIR/checksum"
-PERSISTENT_CHECKSUM="/etc/openwisp/checksum"
+PERSISTENT_CHECKSUM="/etc/immunity/checksum"
 CONFIGURATION_BACKUP="$WORKING_DIR/backup.tar.gz"
 BACKUP_FILE_LIST="$WORKING_DIR/backup_file_list.conf"
 REGISTRATION_PARAMETERS="$WORKING_DIR/registration_parameters"
@@ -211,7 +211,7 @@ retry_with_backoff() {
 		if [ "$exit_code" -eq "0" ]; then
 			break
 		else
-			sleep "$(/usr/sbin/openwisp-get-random-number 2 15)"
+			sleep "$(/usr/sbin/immunity-get-random-number 2 15)"
 		fi
 	done
 	return "$exit_code"
@@ -245,7 +245,7 @@ fi
 # if management interface is not ready, the ip will be empty but other
 # attempts at determining it will be done before the start-up is completed
 if [ -n "$MANAGEMENT_INTERFACE" ]; then
-	MANAGEMENT_IP=$(/usr/sbin/openwisp-get-address "$MANAGEMENT_INTERFACE")
+	MANAGEMENT_IP=$(/usr/sbin/immunity-get-address "$MANAGEMENT_INTERFACE")
 fi
 
 get_model() { cat /tmp/sysinfo/model; }
@@ -255,10 +255,10 @@ get_system() { ubus call system board | grep system | awk -F\" '{ print $4 }'; }
 # ensures we are dealing with the right web server
 check_header() {
 	local is_controller
-	is_controller=$(grep -ic "X-Openwisp-Controller: true" "$1")
+	is_controller=$(grep -ic "X-Immunity-Controller: true" "$1")
 	if [ "$is_controller" -lt 1 ]; then
-		logger -s "Invalid url: missing X-Openwisp-Controller header" \
-			-t openwisp \
+		logger -s "Invalid url: missing X-Immunity-Controller header" \
+			-t immunity \
 			-p daemon.err
 		exit 4
 	fi
@@ -271,7 +271,7 @@ is_http_status() {
 # performs automatic registration
 register() {
 	logger "Registering device..." \
-		-t openwisp \
+		-t immunity \
 		-p daemon.info
 
 	local hostname raw macaddr name backend tags model os system hardware_id \
@@ -290,7 +290,7 @@ register() {
 		hostname="$macaddr"
 	fi
 	backend="netjsonconfig.OpenWrt"
-	tags=$(uci get openwisp.http.tags 2>/dev/null 2>&1)
+	tags=$(uci get immunity.http.tags 2>/dev/null 2>&1)
 	# get device model, OS identifier and SOC info
 	model=$(get_model)
 	os=$(get_os)
@@ -333,20 +333,20 @@ register() {
 	# report eventual failures and return
 	if [ "$exit_code" -ne "0" ]; then
 		logger -s "Failed to connect to controller during registration: curl exit code $exit_code" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		return 1
 	fi
-	# exit if response does not seem to come from openwisp controller
+	# exit if response does not seem to come from immunity controller
 	check_header $REGISTRATION_PARAMETERS
 	if ! is_http_status $REGISTRATION_PARAMETERS 201; then
 		# get body of failure response, seperated from header by a blank line (CRLF-ended)
 		message=$(awk 'BEGIN{RS="\r\n\r\n"}{if(NR>1)print $0}' $REGISTRATION_PARAMETERS)
 		logger -s "Registration failed! $message" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		# send registration-failed hotplug event
-		env -i ACTION="registration-failed" /sbin/hotplug-call openwisp
+		env -i ACTION="registration-failed" /sbin/hotplug-call immunity
 		# if controller returns 403, stop retrying because it's useless
 		if is_http_status $REGISTRATION_PARAMETERS 403; then
 			exit 5
@@ -370,29 +370,29 @@ register() {
 	[ -z "$name" ] && name="$hostname"
 	[ -z "$new" ] && new="1"
 	# persist uuid and key in conf
-	uci set openwisp.http.uuid="$UUID"
-	uci set openwisp.http.key="$KEY"
+	uci set immunity.http.uuid="$UUID"
+	uci set immunity.http.key="$KEY"
 	# remove shared secret to avoid accidental re-registration
-	uci set openwisp.http.shared_secret=""
-	uci commit openwisp
+	uci set immunity.http.shared_secret=""
+	uci commit immunity
 	rm $REGISTRATION_PARAMETERS
 	# log operation
 	prefix=$([ "$new" -eq "1" ] && echo "New" || echo "Existing")
 	logger "$prefix device registered successfully as $name, id: $UUID" \
-		-t openwisp \
+		-t immunity \
 		-p daemon.info
 	# indicates this function has been called
 	# (used by `discover_management_ip`)
 	export REGISTER_CALLED=1
 	# send post-registration hotplug event
-	env -i ACTION="post-registration" /sbin/hotplug-call openwisp
+	env -i ACTION="post-registration" /sbin/hotplug-call immunity
 	# call post registration hook
 	post_registration_hook
 }
 
 # gets checksum from controller
 # - 404 trigger retries and if the 404 persists the agent
-#   quits assuming the device is deleted from OpenWISP Controller
+#   quits assuming the device is deleted from Immunity Controller
 # - any other error is logged but the agent continues execution
 #   and will eventually try again at the next cycle
 get_checksum() {
@@ -405,19 +405,19 @@ get_checksum() {
 
 	if [ "$exit_code" -ne "0" ]; then
 		logger -s "Failed to connect to controller while getting checksum: curl exit code $exit_code" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		return 2
 	fi
 
 	if is_http_status "$1" 404; then
 		logger -s "Failed to retrieve checksum: 404 Not Found" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.warning
 
 		if [ "$attempt_no" -eq "$CHECKSUM_MAX_RETRIES" ]; then
-			logger -s "Giving up and shutting down: the device may have been deleted from OpenWISP Controller" \
-				-t openwisp \
+			logger -s "Giving up and shutting down: the device may have been deleted from Immunity Controller" \
+				-t immunity \
 				-p daemon.err
 			exit 0
 		fi
@@ -427,7 +427,7 @@ get_checksum() {
 	if ! is_http_status "$1" 200; then
 		status=$(head -n 1 "$1")
 		logger -s "Failed to retrieve checksum: $status" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		return 3
 	fi
@@ -454,7 +454,7 @@ configuration_changed() {
 
 	if [ "$CURRENT_CHECKSUM" != "$REMOTE_CHECKSUM" ]; then
 		logger "Local configuration outdated" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.info
 		return 1
 	fi
@@ -469,7 +469,7 @@ pre_reload_hook() {
 		$PRE_RELOAD_HOOK
 		exit_code=$?
 		logger "Called pre-reload-hook: $PRE_RELOAD_HOOK - exit code: $exit_code" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.info
 		return $exit_code
 	fi
@@ -481,7 +481,7 @@ post_reload_hook() {
 		$POST_RELOAD_HOOK
 		local exit_code=$?
 		logger "Called post-reload-hook: $POST_RELOAD_HOOK - exit code: $exit_code" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.info
 		return $exit_code
 	fi
@@ -493,7 +493,7 @@ post_registration_hook() {
 		$POST_REGISTRATION_HOOK
 		local exit_code=$?
 		logger "Called post-registration-hook: $POST_REGISTRATION_HOOK - exit code: $exit_code" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.info
 		return $exit_code
 	fi
@@ -504,30 +504,30 @@ apply_configuration() {
 	# store unmanaged config (if enabled)
 	call_store_unmanaged
 	# update local configuration
-	/usr/sbin/openwisp-update-config --conf="$1" --merge="$MERGE_CONFIG" >"$UPDATE_CONFIG_LOG" 2>&1
+	/usr/sbin/immunity-update-config --conf="$1" --merge="$MERGE_CONFIG" >"$UPDATE_CONFIG_LOG" 2>&1
 	local exit_code=$?
 	# restore unmanaged configurations
 	call_restore_unmanaged
 	# if configuration could not be applied
 	# (because of a syntax error) restore a backup
 	if [ "$exit_code" -ne "0" ]; then
-		logger -s "Could not apply configuration, openwisp-update-config exit code was $exit_code" \
-			-t openwisp \
+		logger -s "Could not apply configuration, immunity-update-config exit code was $exit_code" \
+			-t immunity \
 			-p daemon.crit
-		logger -t openwisp -p daemon.crit -s <"$UPDATE_CONFIG_LOG"
+		logger -t immunity -p daemon.crit -s <"$UPDATE_CONFIG_LOG"
 		rm "$UPDATE_CONFIG_LOG"
 		restore_backup
 		return 1
 	fi
 	# send pre-reload hotplug event
-	env -i ACTION="pre-reload" /sbin/hotplug-call openwisp
+	env -i ACTION="pre-reload" /sbin/hotplug-call immunity
 	# call pre-reload-hook
 	pre_reload_hook
 	# reload changes and wait $POST_RELOAD_DELAY
-	/usr/sbin/openwisp-reload-config
+	/usr/sbin/immunity-reload-config
 	sleep "$POST_RELOAD_DELAY"
 	# send post-reload hotplug event
-	env -i ACTION="post-reload" /sbin/hotplug-call openwisp
+	env -i ACTION="post-reload" /sbin/hotplug-call immunity
 	# call post-reload-hook
 	post_reload_hook
 	rm "$UPDATE_CONFIG_LOG"
@@ -551,7 +551,7 @@ update_info() {
 		exit_code=$?
 		if [ "$exit_code" -eq "0" ]; then
 			logger "Device info updated on the controller" \
-				-t openwisp \
+				-t immunity \
 				-p daemon.info
 			break
 		else
@@ -561,7 +561,7 @@ update_info() {
 
 	if [ "$exit_code" -ne "0" ]; then
 		logger -s "Failed to connect to controller during update-info: curl exit code $exit_code" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		return 2
 	fi
@@ -570,7 +570,7 @@ update_info() {
 		local status
 		status=$(head -n 1 $UPDATE_INFO)
 		logger -s "Failed to update device info: $status" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		return 3
 	fi
@@ -584,8 +584,8 @@ print_error_logs() {
 	# "\n[truncated]" is appended to the logs which adds
 	# another 13 bytes.
 	max_log_bytes=1011
-	# Save openwisp_config related logs to a temporary file
-	logread -e openwisp >"$CONFIG_ERROR_LOG"
+	# Save immunity_config related logs to a temporary file
+	logread -e immunity >"$CONFIG_ERROR_LOG"
 	# Get the line number of the last configuration update
 	last_update_line_no=$(
 		grep "Configuration downloaded, now applying it" -n \
@@ -623,7 +623,7 @@ report_status() {
 
 	if [ "$exit_code" -ne "0" ]; then
 		logger -s "Failed to connect to controller during report-status: curl exit code $exit_code" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		return 2
 	fi
@@ -632,7 +632,7 @@ report_status() {
 		local status
 		status=$(head -n 1 $STATUS_REPORT)
 		logger -s "Failed to report status: $status" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		return 3
 	fi
@@ -647,7 +647,7 @@ test_configuration() {
 	fi
 
 	logger "Testing configuration..." \
-		-t openwisp \
+		-t immunity \
 		-p daemon.info
 
 	if [ -z "$TEST_SCRIPT" ]; then
@@ -660,13 +660,13 @@ test_configuration() {
 
 	if [ $test_result -gt 0 ]; then
 		logger -s "Configuration test failed! Restoring previous backup" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		restore_backup
 		local ret=1
 	else
 		logger "Configuration test succeeded" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.info
 		local ret=0
 	fi
@@ -682,7 +682,7 @@ perform_default_test() {
 		local result=$?
 		if [ $result -ne 0 ]; then
 			logger "Configuration test failed (attempt $i)" \
-				-t openwisp \
+				-t immunity \
 				-p daemon.warning
 			sleep 5
 		else
@@ -699,7 +699,7 @@ call_store_unmanaged() {
 	if [ -z "$UNMANAGED" ]; then
 		return 0
 	fi
-	/usr/sbin/openwisp-store-unmanaged -o="$UNMANAGED"
+	/usr/sbin/immunity-store-unmanaged -o="$UNMANAGED"
 }
 
 # restores unmanaged configuration sections that will be merged
@@ -708,17 +708,17 @@ call_restore_unmanaged() {
 	if [ -z "$UNMANAGED" ]; then
 		return 0
 	fi
-	/usr/sbin/openwisp-restore-unmanaged
+	/usr/sbin/immunity-restore-unmanaged
 }
 
 # 1. ensures there are no anonymous UCI blocks
 # 2. re-generate the md5 checksums
 # 3. removes default wifi-ifaces directive (LEDE or OpenWrt SSID)
 fix_uci_config() {
-	output=$(/usr/sbin/openwisp-uci-autoname)
+	output=$(/usr/sbin/immunity-uci-autoname)
 	if [ -n "$output" ]; then
 		logger "The following uci configs have been renamed: $output" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.info
 	fi
 
@@ -733,18 +733,18 @@ fix_uci_config() {
 	md5sum /var/run/config.check/* >/var/run/config.md5
 	rm -rf /var/run/config.check
 
-	/usr/sbin/openwisp-remove-default-wifi
+	/usr/sbin/immunity-remove-default-wifi
 }
 
 download_configuration() {
 	logger "Downloading configuration from controller..." \
-		-t openwisp \
+		-t immunity \
 		-p daemon.info
 	$FETCH_COMMAND --fail "$CONFIGURATION_URL" -o "$CONFIGURATION_ARCHIVE"
 	local exit_code=$?
 	if [ "$exit_code" -ne "0" ]; then
 		logger -s "Failed to connect to controller while downloading new config: curl exit code $exit_code" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 	fi
 	return "$exit_code"
@@ -759,7 +759,7 @@ update_configuration() {
 
 	if [ "$exit_code" -ne "0" ]; then
 		logger -s "Failed to download configuration from controller, giving up!" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		# remove the checksum to ensure update is tried again at the next run
 		rm -f $CONFIGURATION_CHECKSUM
@@ -773,7 +773,7 @@ update_configuration() {
 
 	if [ "$LOCAL_CHECKSUM" != "$REMOTE_CHECKSUM" ]; then
 		logger -s "Configuration checksum mismatch! Local: $LOCAL_CHECKSUM, Remote: $REMOTE_CHECKSUM" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.err
 		# remove the checksum to ensure update is tried again at the next run
 		rm -f $CONFIGURATION_CHECKSUM
@@ -781,7 +781,7 @@ update_configuration() {
 	fi
 
 	logger "Configuration downloaded, now applying it..." \
-		-t openwisp \
+		-t immunity \
 		-p daemon.info
 
 	# makes fixes to the default uci config so
@@ -807,10 +807,10 @@ update_configuration() {
 
 	if [ "$result" -eq "0" ]; then
 		logger "Configuration applied successfully" \
-			-t openwisp \
+			-t immunity \
 			-p daemon.info
 		# send config-applied hotplug event
-		env -i ACTION="config-applied" /sbin/hotplug-call openwisp
+		env -i ACTION="config-applied" /sbin/hotplug-call immunity
 		# store the new checksum as last known checksum
 		cp "$CONFIGURATION_CHECKSUM" "$PERSISTENT_CHECKSUM"
 		retry_with_backoff report_status "applied"
@@ -827,8 +827,8 @@ update_configuration() {
 }
 
 backup_configuration() {
-	# save list of files that are going to be changed by openwisp
-	# so that if the changes sent by openwisp cause problems,
+	# save list of files that are going to be changed by immunity
+	# so that if the changes sent by immunity cause problems,
 	# the previous version can be rolled back
 	tar -ztf $CONFIGURATION_ARCHIVE | sed 's/^/\//' >$BACKUP_FILE_LIST
 	# backup only those files
@@ -840,14 +840,14 @@ restore_backup() {
 	# restores backup created in backup_configuration() function
 	sysupgrade -r $CONFIGURATION_BACKUP
 	pre_reload_hook
-	/usr/sbin/openwisp-reload-config
+	/usr/sbin/immunity-reload-config
 	sleep "$POST_RELOAD_DELAY"
 	post_reload_hook
 	logger -s "The most recent configuration backup was restored" \
-		-t openwisp \
+		-t immunity \
 		-p daemon.info
 	# send config-restored hotplug event
-	env -i ACTION="config-restored" /sbin/hotplug-call openwisp
+	env -i ACTION="config-restored" /sbin/hotplug-call immunity
 }
 
 discover_management_ip() {
@@ -863,7 +863,7 @@ discover_management_ip() {
 		unset REGISTER_CALLED
 		return
 	fi
-	MANAGEMENT_IP=$(/usr/sbin/openwisp-get-address "$MANAGEMENT_INTERFACE")
+	MANAGEMENT_IP=$(/usr/sbin/immunity-get-address "$MANAGEMENT_INTERFACE")
 	# if management interface is defined but its ip could not be determined
 	# and the shared secret is not present anymore
 	# (which means the device has been already registered)
@@ -871,17 +871,17 @@ discover_management_ip() {
 	if [ -z "$MANAGEMENT_IP" ] && [ -z "$SHARED_SECRET" ]; then
 		MAX_ATTEMPTS=3
 		for attempt in $(seq $MAX_ATTEMPTS); do
-			MANAGEMENT_IP=$(/usr/sbin/openwisp-get-address "$MANAGEMENT_INTERFACE")
+			MANAGEMENT_IP=$(/usr/sbin/immunity-get-address "$MANAGEMENT_INTERFACE")
 
 			if [ -z "$MANAGEMENT_IP" ]; then
 				logger -s "management interface not ready (attempt $attempt of $MAX_ATTEMPTS)" \
-					-t openwisp \
+					-t immunity \
 					-p daemon.notice
 				if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
 					sleep "$MANAGEMENT_INTERVAL"
 				else
 					logger -s "could not determine ip address of management interface, giving up..." \
-						-t openwisp \
+						-t immunity \
 						-p daemon.warning
 				fi
 			else
@@ -898,7 +898,7 @@ discover_management_ip() {
 
 handle_sigusr1() {
 	logger -s "Received SIGUSR1: interrupting interval sleep..." \
-		-t openwisp \
+		-t immunity \
 		-p daemon.info
 }
 
@@ -912,7 +912,7 @@ if [ -z "$UUID" ] || [ -z "$KEY" ]; then
 		sleep "$REGISTRATION_INTERVAL"
 	done
 	# send bootup hotplug event
-	env -i ACTION="bootup" /sbin/hotplug-call openwisp
+	env -i ACTION="bootup" /sbin/hotplug-call immunity
 	touch "$BOOTUP"
 fi
 
@@ -928,20 +928,20 @@ if [ ! -f "$BOOTUP" ]; then
 	# actions to do only after agent start, not after registration or agent restart
 	if [ "$BOOTUP_DELAY" -ne "0" ]; then
 		# get a random number between zero and $BOOTUP_DELAY
-		DELAY=$(/usr/sbin/openwisp-get-random-number 0 "$BOOTUP_DELAY")
+		DELAY=$(/usr/sbin/immunity-get-random-number 0 "$BOOTUP_DELAY")
 		logger "Delaying startup for $DELAY seconds..." \
-			-t openwisp \
+			-t immunity \
 			-p daemon.info
 		sleep "$DELAY"
 	fi
 	# send bootup hotplug event
-	env -i ACTION="bootup" /sbin/hotplug-call openwisp
+	env -i ACTION="bootup" /sbin/hotplug-call immunity
 	# send up to date device info
 	update_info
 	touch "$BOOTUP"
 else
 	# send restart hotplug event
-	env -i ACTION="restart" /sbin/hotplug-call openwisp
+	env -i ACTION="restart" /sbin/hotplug-call immunity
 fi
 
 while true; do
@@ -955,7 +955,7 @@ while true; do
 	if [ "$?" -eq "1" ]; then
 		update_configuration
 	fi
-	env -i ACTION="end-of-cycle" /sbin/hotplug-call openwisp
+	env -i ACTION="end-of-cycle" /sbin/hotplug-call immunity
 
 	# handle SIGUSR1 to interrupt sleep
 	trap handle_sigusr1 USR1

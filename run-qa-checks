@@ -7,22 +7,22 @@ CI=${CI:-0}
 if [ "$CI" -eq 1 ]; then
 	# during github actions CI, copy these files so that they can be checked by
 	# the github action step "action-sh-checker" (see .github/workflows/ci.yml)
-	cp openwisp-config/files/openwisp.agent openwisp_agent
-	cp openwisp-config/files/openwisp.init openwisp_init
+	cp immunity-config/files/immunity.agent immunity_agent
+	cp immunity-config/files/immunity.init immunity_init
 else
 	# check shell scripts formatting
 	sh_files=$(shfmt -f .)
 	# shellcheck disable=SC2086
 	shellcheck $sh_files \
-		openwisp-config/files/openwisp.agent \
-		openwisp-config/files/openwisp.init
+		immunity-config/files/immunity.agent \
+		immunity-config/files/immunity.init
 
 	shfmt -d .
-	shfmt -d openwisp-config/files/openwisp.agent
-	shfmt -d openwisp-config/files/openwisp.init
+	shfmt -d immunity-config/files/immunity.agent
+	shfmt -d immunity-config/files/immunity.init
 fi
 
-openwisp-qa-check \
+immunity-qa-check \
 	--skip-checkmigrations \
 	--skip-isort \
 	--skip-flake8 \

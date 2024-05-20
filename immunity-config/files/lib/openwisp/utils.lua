@@ -1,4 +1,4 @@
--- openwisp uci utils
+-- immunity uci utils
 local io = require('io')
 local lfs = require('lfs')
 

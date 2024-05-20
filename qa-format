@@ -3,12 +3,12 @@ set -e
 
 # format shell scripts
 shfmt -w -l .
-shfmt -w -l openwisp-config/files/openwisp.agent
-shfmt -w -l openwisp-config/files/openwisp.init
+shfmt -w -l immunity-config/files/immunity.agent
+shfmt -w -l immunity-config/files/immunity.init
 
 # format lua files
-cd openwisp-config
+cd immunity-config
 lua-format -i --config=luaformat.config \
 	files/sbin/*.lua \
-	files/lib/openwisp/*.lua \
+	files/lib/immunity/*.lua \
 	tests/*.lua

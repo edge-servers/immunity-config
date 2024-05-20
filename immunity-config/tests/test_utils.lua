@@ -3,7 +3,7 @@ package.path = package.path .. ';../files/lib/?.lua'
 require('os')
 require('io')
 local uci = require('uci')
-local utils = require('openwisp.utils')
+local utils = require('immunity.utils')
 local luaunit = require('luaunit')
 local write_dir = './utils'
 

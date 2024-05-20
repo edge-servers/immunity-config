@@ -3,12 +3,12 @@ package.path = package.path .. ';../files/lib/?.lua'
 require('os')
 require('io')
 local luaunit = require('luaunit')
-local update_config = assert(loadfile("../files/sbin/openwisp-update-config.lua"))
+local update_config = assert(loadfile("../files/sbin/immunity-update-config.lua"))
 local write_dir = './update-test/'
 local config_dir = write_dir .. 'etc/config/'
-local openwisp_dir = './openwisp/'
-local stored_dir = openwisp_dir .. '/stored/'
-local remote_config_dir = openwisp_dir .. 'remote/etc/config'
+local immunity_dir = './immunity/'
+local stored_dir = immunity_dir .. '/stored/'
+local remote_config_dir = immunity_dir .. 'remote/etc/config'
 
 local function string_count(base, pattern)
   return select(2, string.gsub(base, pattern, ""))
@@ -34,18 +34,18 @@ TestUpdateConfig = {
         os.execute('echo original > '..write_dir..'/etc/existing')
         -- we expect this regular file to be removed
         os.execute('echo remove-me > '..write_dir..'/etc/remove-me')
-        os.execute('echo /etc/remove-me > '..openwisp_dir..'/added.list')
+        os.execute('echo /etc/remove-me > '..immunity_dir..'/added.list')
         -- we expect this file to be restored
-        os.execute('mkdir -p ' .. openwisp_dir .. 'stored/etc/')
-        os.execute('echo restore-me > '..openwisp_dir..'/stored/etc/restore-me')
-        os.execute('echo /etc/restore-me > '..openwisp_dir..'/modified.list')
+        os.execute('mkdir -p ' .. immunity_dir .. 'stored/etc/')
+        os.execute('echo restore-me > '..immunity_dir..'/stored/etc/restore-me')
+        os.execute('echo /etc/restore-me > '..immunity_dir..'/modified.list')
         -- this file is stored in the backup
         os.execute('mkdir -p ' .. stored_dir ..'etc/config/')
         os.execute("cp ./update/stored_wireless " ..stored_dir.. '/etc/config/wireless')
     end,
     tearDown = function()
         os.execute('rm -rf ' .. write_dir)
-        os.execute('rm -rf ' .. openwisp_dir)
+        os.execute('rm -rf ' .. immunity_dir)
         os.execute('rm configuration.tar.gz')
     end
 }
@@ -104,7 +104,7 @@ function TestUpdateConfig.test_update()
     local testContents = testFile:read('*all')
     luaunit.assertEquals(testContents, 'test\n')
     -- ensure added.list is what we expect
-    local addedListFile = io.open(openwisp_dir .. '/added.list')
+    local addedListFile = io.open(immunity_dir .. '/added.list')
     luaunit.assertNotNil(addedListFile)
     -- ensure test file is present
     local addedListContents = addedListFile:read('*all')
@@ -135,7 +135,7 @@ function TestUpdateConfig.test_update()
     -- ensure path has been removed
     luaunit.assertNil(string.find(wirelessContents, "option path 'pci0000:00/0000:00:1c.2/0000:05:00.0'"))
     -- ensure existing original file has been stored
-    local modifiedListFile = io.open(openwisp_dir .. '/modified.list')
+    local modifiedListFile = io.open(immunity_dir .. '/modified.list')
     luaunit.assertNotNil(modifiedListFile)
     luaunit.assertEquals(modifiedListFile:read('*all'), '/etc/existing\n')
     local storedExisitngFile = io.open(stored_dir .. '/etc/existing')

@@ -1,10 +1,10 @@
 #!/usr/bin/env lua
 
--- openwisp-config configuration updater
+-- immunity-config configuration updater
 local os = require('os')
 local lfs = require('lfs')
 local uci = require('uci')
-local utils = require('openwisp.utils')
+local utils = require('immunity.utils')
 local arg = {...}
 
 -- parse arguments
@@ -20,29 +20,29 @@ for _, value in pairs(arg) do
 end
 
 local working_dir = lfs.currentdir()
-local tmp_dir = not TEST and '/tmp/openwisp' or working_dir
+local tmp_dir = not TEST and '/tmp/immunity' or working_dir
 local check_dir = tmp_dir .. '/check'
 local check_config_dir = check_dir .. '/etc/config'
 local downloaded_conf = conf or (tmp_dir .. '/configuration.tar.gz')
-local openwisp_dir = not TEST and '/etc/openwisp' or working_dir .. '/openwisp'
+local immunity_dir = not TEST and '/etc/immunity' or working_dir .. '/immunity'
 local standard_config_dir = not TEST and '/etc/config' or working_dir ..
                               '/update-test/etc/config'
 local test_root_dir = working_dir .. '/update-test'
-local remote_dir = openwisp_dir .. '/remote'
+local remote_dir = immunity_dir .. '/remote'
 local remote_config_dir = remote_dir .. '/etc/config'
-local stored_dir = openwisp_dir .. '/stored'
+local stored_dir = immunity_dir .. '/stored'
 local stored_config_dir = stored_dir .. '/etc/config'
-local added_file = openwisp_dir .. '/added.list'
-local modified_file = openwisp_dir .. '/modified.list'
+local added_file = immunity_dir .. '/added.list'
+local modified_file = immunity_dir .. '/modified.list'
 local get_standard = function() return uci.cursor(standard_config_dir) end
 local get_remote = function()
-  return uci.cursor(remote_config_dir, '/tmp/openwisp/.uci')
+  return uci.cursor(remote_config_dir, '/tmp/immunity/.uci')
 end
 local get_check = function()
-  return uci.cursor(check_config_dir, '/tmp/openwisp/.uci')
+  return uci.cursor(check_config_dir, '/tmp/immunity/.uci')
 end
 local get_stored = function()
-  return uci.cursor(stored_config_dir, '/tmp/openwisp/.uci')
+  return uci.cursor(stored_config_dir, '/tmp/immunity/.uci')
 end
 
 -- uci cursors
@@ -75,7 +75,7 @@ end
 -- (overwrite or merge)
 
 local stored = get_stored()
--- remove config items added via openwisp-config
+-- remove config items added via immunity-config
 if lfs.attributes(remote_config_dir, 'mode') == 'directory' then
   for file in lfs.dir(remote_config_dir) do
     local standard_path = standard_config_dir .. '/' .. file
@@ -135,7 +135,7 @@ if lfs.attributes(remote_config_dir, 'mode') == 'directory' then
 end
 os.execute('rm -rf ' .. check_dir)
 
--- persist remote config in /etc/openwisp/remote
+-- persist remote config in /etc/immunity/remote
 os.execute('rm -rf ' .. remote_dir)
 os.execute('mkdir -p ' .. remote_dir)
 os.execute('tar -zxf ' .. downloaded_conf .. ' -C ' .. remote_dir)
@@ -204,7 +204,7 @@ for path, attr in utils.dirtree(remote_dir) do
         -- add file path to modified set
         modified[dest_path] = true
         modified_changed = true
-        -- store original in /etc/openwisp/stored/<path>
+        -- store original in /etc/immunity/stored/<path>
         os.execute('mkdir -p ' .. stored_dir .. dest_dir)
         os.execute('cp ' .. check_path .. ' ' .. stored_dir .. dest_path)
       else
@@ -223,12 +223,12 @@ for path, attr in utils.dirtree(remote_dir) do
   end
 end
 
--- remove files that have been added via openwisp
+-- remove files that have been added via immunity
 -- which are not present anymore
 for file, bool in pairs(added) do
   local remote_path = remote_dir .. file
   local dest_path = not TEST and file or test_root_dir .. file
-  -- if file is not in /etc/openwisp/remote anymore
+  -- if file is not in /etc/immunity/remote anymore
   if not utils.file_exists(remote_path) then
     -- remove file
     os.remove(dest_path)
@@ -238,13 +238,13 @@ for file, bool in pairs(added) do
   end
 end
 
--- restore pre-existing files that were changed via openwisp
+-- restore pre-existing files that were changed via immunity
 -- which are not present anymore
 for file, bool in pairs(modified) do
   local remote_path = remote_dir .. file
   local stored_path = stored_dir .. file
   local dest_path = not TEST and file or test_root_dir .. file
-  -- if file is not in /etc/openwisp/remote anymore
+  -- if file is not in /etc/immunity/remote anymore
   if not utils.file_exists(remote_path) then
     -- restore original file
     os.execute('mv ' .. stored_path .. ' ' .. dest_path)

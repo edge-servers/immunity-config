@@ -35,14 +35,14 @@ git checkout $OPENWRT_BRANCH
 git pull origin $OPENWRT_BRANCH
 
 # configure feeds
-echo "src-link openwisp $CURRENT_DIR" >feeds.conf
+echo "src-link immunity $CURRENT_DIR" >feeds.conf
 cat feeds.conf.default >>feeds.conf
 # remove unneeded feeds
 sed -i '/telephony/d' feeds.conf
 sed -i '/routing/d' feeds.conf
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-echo "CONFIG_PACKAGE_openwisp-config=y" >>.config
+echo "CONFIG_PACKAGE_immunity-config=y" >>.config
 make defconfig
 
 if [ ! "$CI_CACHE" ]; then
@@ -50,9 +50,9 @@ if [ ! "$CI_CACHE" ]; then
 	make -j"$CORES" toolchain/install || make -j1 V=s toolchain/install
 fi
 
-make -j"$CORES" package/openwisp-config/compile || make -j1 V=s package/openwisp-config/compile || exit 1
+make -j"$CORES" package/immunity-config/compile || make -j1 V=s package/immunity-config/compile || exit 1
 
-mv "$BUILD_DIR"/openwrt/bin/packages/"$COMPILE_TARGET"/openwisp "$VERSIONED_DIR"
+mv "$BUILD_DIR"/openwrt/bin/packages/"$COMPILE_TARGET"/immunity "$VERSIONED_DIR"
 
 rm "$LATEST_LINK" || true
 ln -s "$VERSIONED_DIR" "$LATEST_LINK"

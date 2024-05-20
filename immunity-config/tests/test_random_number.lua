@@ -2,7 +2,7 @@ require('os')
 require('io')
 local luaunit = require('luaunit')
 local get_random_number = assert(
-  loadfile("../files/sbin/openwisp-get-random-number.lua"))
+  loadfile("../files/sbin/immunity-get-random-number.lua"))
 
 TestRandomDelay = {}
 

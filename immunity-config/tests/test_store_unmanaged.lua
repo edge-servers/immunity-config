@@ -3,7 +3,7 @@ package.path = package.path .. ';../files/lib/?.lua'
 require('os')
 require('io')
 local luaunit = require('luaunit')
-local store_unmanaged = assert(loadfile("../files/sbin/openwisp-store-unmanaged.lua"))
+local store_unmanaged = assert(loadfile("../files/sbin/immunity-store-unmanaged.lua"))
 local default_blocks = "system.ntp " .. "system.@led " .. "network.loopback " ..
                          "network.@globals " .. "network.lan " .. "network.wan " ..
                          "network.@switch " .. "network.@switch_vlan"

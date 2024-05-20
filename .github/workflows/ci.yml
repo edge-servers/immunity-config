@@ -1,4 +1,4 @@
-name: OpenWISP Config CI Build
+name: Immunity Config CI Build
 
 on:
   push:
@@ -23,11 +23,11 @@ jobs:
         with:
           python-version: 3.7
 
-      - name: Install OpenWISP Config
+      - name: Install Immunity Config
         run: sudo ./install-dev.sh
 
       - name: Install Python dependencies
-        run: pip install openwisp-utils[qa]>=0.7
+        run: pip install immunity-utils[qa]>=0.7
 
       - name: QA-Checks
         run: ./run-qa-checks
@@ -62,7 +62,7 @@ jobs:
         id: cache
         uses: actions/cache@v2
         env:
-          cache-name: cache-openwisp-config-dependencies
+          cache-name: cache-immunity-config-dependencies
         with:
           path: "/home/runner/work/build"
           key: ${{ runner.os }}-build-${{ env.cache-name }}
@@ -92,12 +92,12 @@ jobs:
           project_id: ${{ secrets.GCS_PROJECT_ID }}
           export_default_credentials: true
 
-      - name: Upload compiled packages to downloads.openwisp.io
+      - name: Upload compiled packages to downloads.immunity.io
         if: ${{ github.event_name=='push' }}
         run: |
           gsutil -m rsync -r ${{ env.SRC_URL }} ${{ env.DST_URL }}
           gsutil -m rsync -r -d ${{ env.SRC_URL }} ${{ env.LATEST_URL }}
         env:
-          SRC_URL: ${{ env.DOWNLOADS_DIR }}/${{ env.START_TIME }}/openwisp
-          DST_URL: gs://${{ secrets.GCS_DOWNLOADS_BUCKET_NAME }}/openwisp-config/${{ env.START_TIME }}-${{ env.COMMIT_SHA }}
-          LATEST_URL: gs://${{ secrets.GCS_DOWNLOADS_BUCKET_NAME }}/openwisp-config/latest
+          SRC_URL: ${{ env.DOWNLOADS_DIR }}/${{ env.START_TIME }}/immunity
+          DST_URL: gs://${{ secrets.GCS_DOWNLOADS_BUCKET_NAME }}/immunity-config/${{ env.START_TIME }}-${{ env.COMMIT_SHA }}
+          LATEST_URL: gs://${{ secrets.GCS_DOWNLOADS_BUCKET_NAME }}/immunity-config/latest

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
-luacheck ./openwisp-config/ -a
-cd openwisp-config/tests/
+luacheck ./immunity-config/ -a
+cd immunity-config/tests/
 lua test_remove_default_wifi.lua -v
 lua test_restore_unmanaged.lua -v
 lua test_store_unmanaged.lua -v

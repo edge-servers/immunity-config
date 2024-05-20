@@ -3,7 +3,7 @@
 -- ensures anonymous configurations are named
 local uci = require('uci')
 local lfs = require('lfs')
-local utils = require('openwisp.utils')
+local utils = require('immunity.utils')
 local arg = {...}
 local test = false
 
@@ -41,7 +41,7 @@ end
 -- if test mode
 if test then
   -- use different write cursor in test mode
-  local uci_tmp_path = '/tmp/openwisp/.uci'
+  local uci_tmp_path = '/tmp/immunity/.uci'
   os.execute('mkdir -p ' .. uci_tmp_path)
   output = uci.cursor('../tests/anonymous/', uci_tmp_path)
 end

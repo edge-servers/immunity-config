@@ -3,7 +3,7 @@
 -- restores unmanaged configurations
 local uci = require('uci')
 local lfs = require('lfs')
-local utils = require('openwisp.utils')
+local utils = require('immunity.utils')
 
 -- parse arguments
 local test = false
@@ -14,10 +14,10 @@ for key, value in pairs(arg) do
 end
 
 local standard_prefix = test and '../tests/' or '/etc/'
-local unmanaged_prefix = test and '../tests/' or '/tmp/openwisp/'
+local unmanaged_prefix = test and '../tests/' or '/tmp/immunity/'
 local standard_path = standard_prefix .. 'config/'
 local unmanaged_path = unmanaged_prefix .. 'unmanaged/'
-local uci_tmp_path = '/tmp/openwisp/.uci'
+local uci_tmp_path = '/tmp/immunity/.uci'
 -- standard cursor
 local standard = uci.cursor(standard_path)
 -- unmanaged cursor

@@ -2,10 +2,10 @@
 
 -- gets the first useful address of the specified interface
 -- usage:
---   * openwisp-get-address <ifname>
---   * openwisp-get-address <network-name>
+--   * immunity-get-address <ifname>
+--   * immunity-get-address <network-name>
 local os = require('os')
-local net = require('openwisp.net')
+local net = require('immunity.net')
 local name = arg[1]
 local interface = net.get_interface(name)
 

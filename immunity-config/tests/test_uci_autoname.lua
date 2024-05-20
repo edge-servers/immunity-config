@@ -3,7 +3,7 @@ package.path = package.path .. ';../files/lib/?.lua'
 require('os')
 require('io')
 local luaunit = require('luaunit')
-local name_anonymous_uci = assert(loadfile("../files/sbin/openwisp-uci-autoname.lua"))
+local name_anonymous_uci = assert(loadfile("../files/sbin/immunity-uci-autoname.lua"))
 local write_dir = './anonymous/'
 
 TestUciAutoname = {

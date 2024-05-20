@@ -1,31 +1,31 @@
 ===============
-openwisp-config
+immunity-config
 ===============
 
-.. image:: https://github.com/openwisp/openwisp-config/workflows/OpenWISP%20Config%20CI%20Build/badge.svg?branch=master
-    :target: https://github.com/openwisp/openwisp-config/actions?query=workflow%3A%22OpenWISP+Config+CI+Build%22
+.. image:: https://github.com/edge-servers/immunity-config/workflows/Immunity%20Config%20CI%20Build/badge.svg?branch=master
+    :target: https://github.com/edge-servers/immunity-config/actions?query=workflow%3A%22Immunity+Config+CI+Build%22
     :alt: ci build
 
-.. image:: http://img.shields.io/github/release/openwisp/openwisp-config.svg
-   :target: https://github.com/openwisp/openwisp-config/releases
+.. image:: http://img.shields.io/github/release/immunity/immunity-config.svg
+   :target: https://github.com/edge-servers/immunity-config/releases
 
 .. image:: https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square
-   :target: https://gitter.im/openwisp/general
+   :target: https://gitter.im/immunity/general
    :alt: support chat
 
 ------------
 
-`OpenWISP Controller <https://github.com/openwisp/ansible-openwisp2>`_
+`Immunity Controller <https://github.com/edge-servers/ansible-immunity2>`_
 agent for `OpenWrt <https://openwrt.org/>`_.
 
-**Want to help OpenWISP?** `Find out how to help us grow here
-<http://openwisp.io/docs/general/help-us.html>`_.
+**Want to help Immunity?** `Find out how to help us grow here
+<http://immunity.io/docs/general/help-us.html>`_.
 
-**Want a quick overview of OpenWISP?**
-`Try the OpenWISP Demo <https://openwisp.org/demo.html>`_.
+**Want a quick overview of Immunity?**
+`Try the Immunity Demo <https://immunity.org/demo.html>`_.
 
-.. image:: http://netjsonconfig.openwisp.org/en/latest/_images/openwisp.org.svg
-  :target: http://openwisp.org
+.. image:: http://netjsonconfig.immunity.org/en/latest/_images/immunity.org.svg
+  :target: http://immunity.org
 
 .. contents:: **Table of Contents**:
  :backlinks: none
@@ -42,24 +42,24 @@ First run:
 
     opkg update
 
-Then install one of the `latest builds <https://downloads.openwisp.io/?prefix=openwisp-config/latest/>`_:
+Then install one of the `latest builds <https://downloads.immunity.io/?prefix=immunity-config/latest/>`_:
 
 .. code-block:: shell
 
     opkg install <URL>
 
-Where ``<URL>`` is the URL of the precompiled openwisp-config package.
+Where ``<URL>`` is the URL of the precompiled immunity-config package.
 
-For a list of the latest built images, take a look at `downloads.openwisp.io/?prefix=openwisp-config/
-<https://downloads.openwisp.io/?prefix=openwisp-config/>`_.
+For a list of the latest built images, take a look at `downloads.immunity.io/?prefix=immunity-config/
+<https://downloads.immunity.io/?prefix=immunity-config/>`_.
 
-**If you need to compile the package yourself**, see `Compiling openwisp-config`_
+**If you need to compile the package yourself**, see `Compiling immunity-config`_
 and `Compiling a custom OpenWRT image`_.
 
-Once installed *openwisp-config* needs to be configured (see `Configuration options`_)
+Once installed *immunity-config* needs to be configured (see `Configuration options`_)
 and then started with::
 
-    /etc/init.d/openwisp_config start
+    /etc/init.d/immunity_config start
 
 To ensure the agent is working correctly find out how to perform debugging in
 the `Debugging`_ section.
@@ -67,9 +67,9 @@ the `Debugging`_ section.
 Configuration options
 ---------------------
 
-UCI configuration options must go in ``/etc/config/openwisp``.
+UCI configuration options must go in ``/etc/config/immunity``.
 
-- ``url``: url of controller, eg: ``https://controller.openwisp.org``
+- ``url``: url of controller, eg: ``https://controller.immunity.org``
 - ``interval``: time in seconds between checks for changes to the configuration, defaults to ``120``
 - ``management_interval``: time in seconds between the management ip discovery attempts, defaults to ``$interval/12``
 - ``registration_interval``: time in seconds between the registration attempts, defaults to ``$interval/4``
@@ -78,7 +78,7 @@ UCI configuration options must go in ``/etc/config/openwisp``.
 - ``consistent_key``: whether `Consistent key generation`_ is enabled or not, defaults to ``1``
 - ``merge_config``: whether `Merge configuration`_ is enabled or not, defaults to ``1``
 - ``tags``: template tags to use during registration, multiple tags separated by space can be used,
-  for more information see `Template Tags <https://openwisp.io/docs/user/templates.html#template-tags>`_
+  for more information see `Template Tags <https://immunity.io/docs/user/templates.html#template-tags>`_
 - ``test_config``: whether a new configuration must be tested before being considered applied, defaults to ``1``
 - ``test_retries``: maximum number of retries when doing the default configuration test, defaults to ``3``
 - ``test_script``: custom test script, read more about this feature in `Configuration test`_
@@ -95,9 +95,9 @@ UCI configuration options must go in ``/etc/config/openwisp``.
 - ``mac_interface``: the interface from which the MAC address is taken when performing automatic registration, defaults to ``eth0``
 - ``management_interface``: management interface name (both openwrt UCI names and
   linux interface names are supported), it's used to collect the management interface ip address
-  and send this information to the OpenWISP server, for more information please read
-  `how to make sure OpenWISP can reach your devices
-  <https://openwisp.io/docs/user/monitoring.html#openwisp-reach-devices>`_
+  and send this information to the Immunity server, for more information please read
+  `how to make sure Immunity can reach your devices
+  <https://immunity.io/docs/user/monitoring.html#immunity-reach-devices>`_
 - ``default_hostname``: if your firmware has a custom default hostname, you can use this configuration
   option so the agent can recognize it during registration and replicate the standard behavior
   (new device will be named after its mac address, to avoid having many new devices with the same name),
@@ -113,7 +113,7 @@ UCI configuration options must go in ``/etc/config/openwisp``.
 - ``respawn_timeout``: time in seconds used as procd respawn timeout, defaults to ``5``
 - ``respawn_retry``: number of procd respawn retries (use ``0`` for infinity), defaults to ``5``
 - ``checksum_max_retries``: maximum number of retries for checksum requests which fail with 404, defaults to ``5``,
-  after these failures the agent will assume the device has been deleted from OpenWISP Controller and will exit;
+  after these failures the agent will assume the device has been deleted from Immunity Controller and will exit;
   please keep in mind that due to ``respawn_retry``, procd will try to respawn the agent after it exits, so the
   total number of attempts which will be tried has to be calculated as:
   ``checksum_max_retries * respawn_retry``
@@ -131,7 +131,7 @@ The device will choose as name one of its mac addresses, unless its hostname is 
 in the latter case it will simply register itself with the current hostname.
 
 When the registration is completed, the agent will automatically set ``uuid`` and ``key``
-in ``/etc/config/openwisp``.
+in ``/etc/config/immunity``.
 
 To enable this feature by default on your firmware images, follow the procedure described in
 `Compiling a custom OpenWRT image`_.
@@ -161,7 +161,7 @@ By default the remote configuration is merged with the local one. This has sever
 * less boilerplate configuration stored in the remote controller
 * local users can change local configurations without fear of losing their changes
 
-It is possible to turn this feature off by setting ``merge_config`` to ``0`` in ``/etc/config/openwisp``.
+It is possible to turn this feature off by setting ``merge_config`` to ``0`` in ``/etc/config/immunity``.
 
 **Details about the merging behavior**:
 
@@ -188,7 +188,7 @@ If the test fails, the backup is restored and the agent will log the failure via
 Disable testing
 ^^^^^^^^^^^^^^^
 
-To disable this feature, set the ``test_config`` option to ``0``, then reload/restart *openwisp_config*.
+To disable this feature, set the ``test_config`` option to ``0``, then reload/restart *immunity_config*.
 
 Define custom tests
 ^^^^^^^^^^^^^^^^^^^
@@ -210,8 +210,8 @@ If the above configuration option is set then the hardware id will also be used 
 instead of the mac address. If you use a hardware id script but prefer to use the mac address for key
 generation then set ``hardware_id_key`` to ``0``.
 
-See also the `related hardware ID settings in OpenWISP Controller
-<https://github.com/openwisp/openwisp-controller/#openwisp-controller-hardware-id-enabled>`_.
+See also the `related hardware ID settings in Immunity Controller
+<https://github.com/edge-servers/immunity-controller/#immunity-controller-hardware-id-enabled>`_.
 
 Bootup Delay
 ------------
@@ -226,10 +226,10 @@ The default value of this option is 10, meaning that the initialization of
 the agent will be delayed for a random number of seconds, this random number
 being comprised between ``0`` and ``10``.
 
-This feature is used to spread the load on the OpenWISP server when a
+This feature is used to spread the load on the Immunity server when a
 large amount of devices boot up at the same time after a blackout.
 
-Large OpenWISP installations may want to increase this value.
+Large Immunity installations may want to increase this value.
 
 Unmanaged Configurations
 ------------------------
@@ -238,7 +238,7 @@ In some cases it could be necessary to ensure that some configuration sections w
 overwritten by the controller.
 
 These settings are called "unmanaged", in the sense that they are not managed remotely.
-In the default configuration of *openwisp_config* there are no unmanaged settings.
+In the default configuration of *immunity_config* there are no unmanaged settings.
 
 Example unmanaged settings::
 
@@ -259,15 +259,15 @@ or via the web interface.
 Hooks
 -----
 
-Below are described the available hooks in *openwisp-config*.
+Below are described the available hooks in *immunity-config*.
 
 pre-reload-hook
 ^^^^^^^^^^^^^^^
 
-Defaults to ``/etc/openwisp/pre-reload-hook``; the hook is not called if the
+Defaults to ``/etc/immunity/pre-reload-hook``; the hook is not called if the
 path does not point to an executable script file.
 
-This hook is called each time *openwisp-config* applies a configuration, but **before services are reloaded**,
+This hook is called each time *immunity-config* applies a configuration, but **before services are reloaded**,
 more precisely in these situations:
 
 * after a new remote configuration is downloaded and applied
@@ -288,8 +288,8 @@ Complete example:
 .. code-block:: shell
 
     # set hook in configuration
-    uci set openwisp.http.pre_reload_hook='/usr/sbin/my-pre-reload-hook'
-    uci commit openwisp
+    uci set immunity.http.pre_reload_hook='/usr/sbin/my-pre-reload-hook'
+    uci commit immunity
     # create hook script
     cat <<EOF > /usr/sbin/my-pre-reload-hook
     #!/bin/sh
@@ -297,13 +297,13 @@ Complete example:
     EOF
     # make script executable
     chmod +x /usr/sbin/my-pre-reload-hook
-    # reload openwisp_config by using procd's convenient utility
+    # reload immunity_config by using procd's convenient utility
     reload_config
 
 post-reload-hook
 ^^^^^^^^^^^^^^^^
 
-Defaults to ``/etc/openwisp/post-reload-hook``; the hook is not called if the
+Defaults to ``/etc/immunity/post-reload-hook``; the hook is not called if the
 path does not point to an executable script file.
 
 Same as `pre_reload_hook` but with the difference that this hook is called
@@ -312,7 +312,7 @@ after the configuration services have been reloaded.
 post-registration-hook
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Defaults to ``/etc/openwisp/post-registration-hook``;
+Defaults to ``/etc/immunity/post-registration-hook``;
 
 Path to an executable script that will be called after the registration is completed.
 
@@ -332,28 +332,28 @@ The agent sends the following
 - After services have been reloaded: ``post-reload``
 - After the agent has finished its check cycle, before going to sleep: ``end-of-cycle``
 
-If a hotplug event is sent by *openwisp-config* then all scripts existing in
-``/etc/hotplug.d/openwisp/`` will be executed. In scripts the type of event
+If a hotplug event is sent by *immunity-config* then all scripts existing in
+``/etc/hotplug.d/immunity/`` will be executed. In scripts the type of event
 is visible in the variable ``$ACTION``. For example, a script to log the hotplug
-events, ``/etc/hotplug.d/openwisp/01_log_events``, could look like this:
+events, ``/etc/hotplug.d/immunity/01_log_events``, could look like this:
 
 .. code-block:: shell
 
     #!/bin/sh
 
-    logger "openwisp-config sent a hotplug event. Action: $ACTION"
+    logger "immunity-config sent a hotplug event. Action: $ACTION"
 
 It will create log entries like this::
 
-    Wed Jun 22 06:15:17 2022 user.notice root: openwisp-config sent a hotplug event. Action: registration-failed
+    Wed Jun 22 06:15:17 2022 user.notice root: immunity-config sent a hotplug event. Action: registration-failed
 
 For more information on using these events refer to the
 `Hotplug Events OpenWrt Documentation <https://openwrt.org/docs/guide-user/base-system/hotplug>`_.
 
-Compiling openwisp-config
+Compiling immunity-config
 -------------------------
 
-The following procedure illustrates how to compile *openwisp-config* and its dependencies:
+The following procedure illustrates how to compile *immunity-config* and its dependencies:
 
 .. code-block:: shell
 
@@ -362,21 +362,21 @@ The following procedure illustrates how to compile *openwisp-config* and its dep
     git checkout <openwrt-branch>
 
     # configure feeds
-    echo "src-git openwisp https://github.com/openwisp/openwisp-config.git" > feeds.conf
+    echo "src-git immunity https://github.com/edge-servers/immunity-config.git" > feeds.conf
     cat feeds.conf.default >> feeds.conf
     ./scripts/feeds update -a
     ./scripts/feeds install -a
     # any arch/target is fine because the package is architecture indipendent
     arch="ar71xx"
     echo "CONFIG_TARGET_$arch=y" > .config;
-    echo "CONFIG_PACKAGE_openwisp-config=y" >> .config
+    echo "CONFIG_PACKAGE_immunity-config=y" >> .config
     make defconfig
     make tools/install
     make toolchain/install
-    make package/openwisp-config/compile
+    make package/immunity-config/compile
 
 Alternatively, you can configure your build interactively with ``make menuconfig``, in this case
-you will need to select *openwisp-config* by going to ``Administration > openwisp``:
+you will need to select *immunity-config* by going to ``Administration > immunity``:
 
 .. code-block:: shell
 
@@ -385,28 +385,28 @@ you will need to select *openwisp-config* by going to ``Administration > openwis
     git checkout <openwrt-branch>
 
     # configure feeds
-    echo "src-git openwisp https://github.com/openwisp/openwisp-config.git" > feeds.conf
+    echo "src-git immunity https://github.com/edge-servers/immunity-config.git" > feeds.conf
     cat feeds.conf.default >> feeds.conf
     ./scripts/feeds update -a
     ./scripts/feeds install -a
     make menuconfig
-    # go to Administration > openwisp and select the variant you need interactively
+    # go to Administration > immunity and select the variant you need interactively
     make -j1 V=s
 
 Compiling a custom OpenWRT image
 --------------------------------
 
-If you are managing many devices and customizing your ``openwisp-config`` configuration by hand on
+If you are managing many devices and customizing your ``immunity-config`` configuration by hand on
 each new device, you should switch to using a custom OpenWRT firmware image that includes
-``openwisp-config`` and its precompiled configuration file, this strategy has a few important benefits:
+``immunity-config`` and its precompiled configuration file, this strategy has a few important benefits:
 
-* you can save yourself the effort of installing and configuring ``openwisp-config`` on each device
+* you can save yourself the effort of installing and configuring ``immunity-config`` on each device
 * you can enable `Automatic registration`_ by setting ``shared_secret``,
   hence saving extra time and effort to register each device on the controller app
 * if you happen to reset the firmware to initial settings, these precompiled settings will be restored as well
 
 The following procedure illustrates how to compile a custom `OpenWRT <https://openwrt.org/>`_
-image with a precompiled minimal ``/etc/config/openwisp`` configuration file:
+image with a precompiled minimal ``/etc/config/immunity`` configuration file:
 
 .. code-block:: shell
 
@@ -416,22 +416,22 @@ image with a precompiled minimal ``/etc/config/openwisp`` configuration file:
 
     # include precompiled file
     mkdir -p files/etc/config
-    cat <<EOF > files/etc/config/openwisp
+    cat <<EOF > files/etc/config/immunity
     config controller 'http'
         # change the values of the following 2 options
-        option url 'https://openwisp2.mydomain.com'
+        option url 'https://immunity2.mydomain.com'
         option shared_secret 'mysharedsecret'
     EOF
 
     # configure feeds
-    echo "src-git openwisp https://github.com/openwisp/openwisp-config.git" > feeds.conf
+    echo "src-git immunity https://github.com/edge-servers/immunity-config.git" > feeds.conf
     cat feeds.conf.default >> feeds.conf
     ./scripts/feeds update -a
     ./scripts/feeds install -a
     # replace with your desired arch target
     arch="ar71xx"
     echo "CONFIG_TARGET_$arch=y" > .config
-    echo "CONFIG_PACKAGE_openwisp-config=y" >> .config
+    echo "CONFIG_PACKAGE_immunity-config=y" >> .config
     make defconfig
     # compile with verbose output
     make -j1 V=s
@@ -439,18 +439,18 @@ image with a precompiled minimal ``/etc/config/openwisp`` configuration file:
 Automate compilation for different organizations
 ------------------------------------------------
 
-If you are working with OpenWISP, there are chances you may be compiling several images for different
+If you are working with Immunity, there are chances you may be compiling several images for different
 organizations (clients or non-profit communities) and use cases (full featured, mesh, 4G, etc).
 
 Doing this by hand without tracking your changes can lead you into a very disorganized and messy situation.
 
-To alleviate this pain you can use `ansible-openwisp2-imagegenerator
-<https://github.com/openwisp/ansible-openwisp2-imagegenerator>`_.
+To alleviate this pain you can use `ansible-immunity2-imagegenerator
+<https://github.com/edge-servers/ansible-immunity2-imagegenerator>`_.
 
 Debugging
 ---------
 
-Debugging *openwisp-config* can be easily done by using the ``logread`` command:
+Debugging *immunity-config* can be easily done by using the ``logread`` command:
 
 .. code-block:: shell
 
@@ -460,19 +460,19 @@ Use grep to filter out any other log message:
 
 .. code-block:: shell
 
-    logread | grep openwisp
+    logread | grep immunity
 
-If you are in doubt openwisp-config is running at all, you can check with::
+If you are in doubt immunity-config is running at all, you can check with::
 
-    ps | grep openwisp
+    ps | grep immunity
 
 You should see something like::
 
-    3800 root      1200 S    {openwisp_config} /bin/sh /usr/sbin/openwisp_config --url https://openwisp2.mydomain.com --verify-ssl 1 --consistent-key 1 ...
+    3800 root      1200 S    {immunity_config} /bin/sh /usr/sbin/immunity_config --url https://immunity2.mydomain.com --verify-ssl 1 --consistent-key 1 ...
 
-You can inspect the version of openwisp-config currently installed with::
+You can inspect the version of immunity-config currently installed with::
 
-    openwisp_config --version
+    immunity_config --version
 
 Quality Assurance Checks
 ------------------------
@@ -486,8 +486,8 @@ First of all, you will need install the lua packages mentioned above, then you c
 
 To run quality assurance checks you can use the ``run-qa-checks`` script::
 
-    # install openwisp-utils QA tools first
-    pip install openwisp-utils[qa]
+    # install immunity-utils QA tools first
+    pip install immunity-utils[qa]
 
     # run QA checks before committing code
     ./run-qa-checks
@@ -496,7 +496,7 @@ Run tests
 ---------
 
 To run the unit tests, you must install the required dependencies first; to do this, you can take
-a look at the `install-dev.sh <https://github.com/openwisp/openwisp-config/blob/master/install-dev.sh>`_
+a look at the `install-dev.sh <https://github.com/edge-servers/immunity-config/blob/master/install-dev.sh>`_
 script.
 
 You can run all the unit tests by launching the dedicated script::
@@ -505,26 +505,26 @@ You can run all the unit tests by launching the dedicated script::
 
 Alternatively, you can run specifc tests, eg::
 
-    cd openwisp-config/tests/
+    cd immunity-config/tests/
     lua test_utils.lua -v
 
 Contributing
 ------------
 
-Please read the `OpenWISP contributing guidelines
-<http://openwisp.io/docs/developer/contributing.html>`_.
+Please read the `Immunity contributing guidelines
+<http://immunity.io/docs/developer/contributing.html>`_.
 
 Changelog
 ---------
 
-See `CHANGELOG <https://github.com/openwisp/openwisp-config/blob/master/CHANGELOG.rst>`_.
+See `CHANGELOG <https://github.com/edge-servers/immunity-config/blob/master/CHANGELOG.rst>`_.
 
 License
 -------
 
-See `LICENSE <https://github.com/openwisp/openwisp-config/blob/master/LICENSE>`_.
+See `LICENSE <https://github.com/edge-servers/immunity-config/blob/master/LICENSE>`_.
 
 Support
 -------
 
-See `OpenWISP Support Channels <http://openwisp.org/support.html>`_.
+See `Immunity Support Channels <http://immunity.org/support.html>`_.

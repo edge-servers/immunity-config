@@ -4,7 +4,7 @@ require('os')
 require('io')
 local luaunit = require('luaunit')
 local restore_unmanaged = assert(loadfile(
-  "../files/sbin/openwisp-restore-unmanaged.lua"))
+  "../files/sbin/immunity-restore-unmanaged.lua"))
 local write_dir = './unmanaged/'
 
 TestRestoreUnmanaged = {
